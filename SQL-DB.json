@@ -1,0 +1,144 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        // SQL server name
+        "sqlservername": {
+            "type": "string",
+            "metadata": {
+                "description": "description"
+            }
+        },
+        // server Login Name
+        "servername": {
+            "type": "string",
+            "metadata": {
+                "description": "description"
+            }
+        },
+        // server Password
+        "serverpswd": {
+            "type": "securestring",
+            "metadata": {
+                "description": "description"
+            }
+        },
+        // SQL DB Name
+        "sqldbname": {
+            "type": "string",
+            "metadata": {
+                "description": "description"
+            }
+        },
+        // edition
+        "edition": {
+            "type": "string",
+            "allowedValues": [
+                "BusinessCritical",
+                "DataWarehouse",
+                "Free",
+                "GeneralPurpose",
+                "Hyperscale",
+                "Premium",
+                "PremiumRS",
+                "Standard",
+                "Stretch",
+                "System",
+                "System2",
+                "Web",
+                "Basic",
+                "Business"
+
+            ],
+            "defaultValue": "Basic",
+            "metadata": {
+                "description": "description"
+            }
+        },
+        // requestedServiceObjectiveName
+        "rqsobname": {
+            "type": "string",
+            "allowedValues": [
+                "Free",
+                "Basic",
+                "S0",
+                "S1",
+                "S2",
+                "S3",
+                "S4",
+                "S6",
+                "S7",
+                "S9",
+                "S12",
+                "P1",
+                "P2",
+                "P3",
+                "P4",
+                "P6",
+                "P11",
+                "P15",
+                "PRS1",
+                "PRS2",
+                "PRS4",
+                "PRS6"
+            ],
+            "defaultValue": "Basic",
+
+            "metadata": {
+                "description": "description"
+            }
+        }
+    },
+    "functions": [],
+    "variables": {},
+    "resources": [
+        {
+            "name": "[parameters('sqlservername')]",
+            "type": "Microsoft.Sql/servers",
+            "apiVersion": "2014-04-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "sqlServer1"
+            },
+            "properties": {
+                "administratorLogin": "[parameters('servername')]",
+                "administratorLoginPassword": "[parameters('serverpswd')]"
+            },
+            "resources": [
+                {
+                    "type": "firewallRules",
+                    "apiVersion": "2014-04-01",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Sql/servers', parameters('sqlservername'))]"
+                    ],
+                    "location": "[resourceGroup().location]",
+                    "name": "AllowAllWindowsAzureIps",
+                    "properties": {
+                        "startIpAddress": "0.0.0.0",
+                        "endIpAddress": "0.0.0.0"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "[concat(parameters('sqlservername'),'/',parameters('sqldbname'))]",
+            "type": "Microsoft.Sql/servers/databases",
+            "apiVersion": "2014-04-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "sqlDatabase1"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('sqlservername'))]"
+            ],
+            "properties": {
+                "collation": "SQL_Latin1_General_CP1_CI_AS",
+                "edition": "[parameters('edition')]",
+                "maxSizeBytes": "1073741824",
+                "requestedServiceObjectiveName": "[parameters('rqsobname')]"
+
+            }
+        }
+    ],
+    "outputs": {}
+}
