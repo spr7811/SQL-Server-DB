@@ -39,7 +39,20 @@
             "sku": {
                 "name": "[parameters('stgsku')]",
                 "tier": "Premium"
-            }
+            },
+            "resources": [
+                {                 
+                    "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+                     "name": "[format('{0}/default/{1}', parameters('storageaccount1'), 'backup')]",
+                    "apiVersion": "2021-04-01",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageaccount1'))]"
+                    ],
+                    "properties": {
+                        "publicAccess": "Container"
+                    }
+                }
+            ]
         }
     ],
     "outputs": {}
